@@ -131,6 +131,20 @@
         Filter: (zakaz IS NOT NULL)
 Узел плана проверяет это условие для каждого просканированного им узла и выводит только те строки, которые удовлетворяют ему. Предложение WHERE повлияло на оценку числа выходных строк. Значение rows даёт только приблизительное значени. Каждый раз оно не значительно меняется. 
 
+        test_db=# EXPLAIN SELECT clients.person, orders.product
+        FROM clients
+        LEFT JOIN orders ON clients.order_id = orders.id
+        WHERE zakaz IS NOT NULL;
+                                      QUERY PLAN                               
+        -----------------------------------------------------------------------
+         Hash Join  (cost=15.61..28.65 rows=239 width=420)
+           Hash Cond: (clients.order_id = orders.id)
+           ->  Seq Scan on clients  (cost=0.00..12.40 rows=240 width=150)
+           ->  Hash  (cost=12.50..12.50 rows=249 width=278)
+                 ->  Seq Scan on orders  (cost=0.00..12.50 rows=249 width=278)
+                       Filter: (id IS NOT NULL)
+        (6 rows)
+cost 15.61 - затраты на получение первой записи; 28.65 - затраты на получение всех записей; rows = 239 - приблизительное количество возвращаемых записей при выполнении операци; width=420 - средний размер одной записи в байтах
 ## 6.
 Останавливаем контейнер и создаём новый контейнер, с новой бд и новым именем.
 
